@@ -4,7 +4,7 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from PCA import find_PCs, PCA_transform
-from data_processing import df, trainD, testD, Scaling, SplitData
+from data_processing import df, trainD, testD, Scaling, Normalization, SplitData
 
 # Clustering(): Obtains the k-nearest neighbors
 def Clustering(trainD, testD, k):
@@ -94,29 +94,28 @@ def main():
 
     k = 7
 
-    num_PCs_needed, variance_covered, principle_components = find_PCs(trainD)
-    transformed_training_X = PCA_transform(trainD, principle_components)
+    # data = Normalization(df)
+    data = Scaling(df)
+
+    num_PCs_needed, variance_covered, principle_components = find_PCs(data)
+    transformed_data = PCA_transform(data, principle_components)
 
     column_names = [f'PC{i+1}' for i in range(num_PCs_needed)]
 
-    df_transformed_training_X = pd.DataFrame(transformed_training_X)
-    df_transformed_training_X.columns = column_names
-    df_transformed_training_X.insert(0, 'id', trainD['id'].values)
-    df_transformed_training_X.insert(1, 'diagnosis', trainD['diagnosis'].values)
+    transformed_data_df = pd.DataFrame(transformed_data)
+    transformed_data_df.columns = column_names
+    transformed_data_df.insert(0, 'id', df['id'].values)
+    transformed_data_df.insert(1, 'diagnosis', df['diagnosis'].values)
 
-    num_PCs_needed, variance_covered, principle_components = find_PCs(testD)
-    transformed_testing_X = PCA_transform(testD, principle_components)
+    train_size = 0.7
 
-    df_transformed_testing_X = pd.DataFrame(transformed_testing_X)
-    df_transformed_testing_X.columns = column_names
-    df_transformed_testing_X.insert(0, 'id', testD['id'].values)
-    df_transformed_testing_X.insert(1, 'diagnosis', testD['diagnosis'].values)
+    train_data, test_data = SplitData(transformed_data_df, train_size)
 
-    classifications = Clustering(df_transformed_training_X, df_transformed_testing_X, k)
+    classifications = Clustering(train_data, test_data, k)
 
-    accuracy = Metrics(df_transformed_testing_X, classifications)
+    accuracy = Metrics(test_data, classifications)
 
-    print("The accuracy of the KNN clustering with PCA performed without packages is: {:.3f}%".format(accuracy))
+    print("The accuracy of the KNN clustering with PCA without the packages is: {:.3f}%".format(accuracy))
 
     #---------------------------------------------------------------------------------------------------------------------
 
