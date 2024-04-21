@@ -4,8 +4,17 @@ import numpy as np
 import pandas as pd
 from sklearn.decomposition import PCA
 from PCA import find_PCs, PCA_transform
-from data_processing import trainD, testD
+from data_processing import df, trainD, testD, SplitData
 from sklearn.preprocessing import StandardScaler
+
+def Scaling(data):
+    scaler = StandardScaler()
+    features = data.drop(['diagnosis'], axis=1)
+    scaled_features = scaler.fit_transform(features)
+    scaled_df = pd.DataFrame(scaled_features, columns=features.columns)
+    scaled_df['diagnosis'] = data['diagnosis']
+    return scaled_df
+
 
 # Clustering(): Obtains the k-nearest neighbors
 def Clustering(trainD, testD, k):
@@ -123,29 +132,68 @@ def main():
 
     k = 7
 
+    data = Scaling(df)
+
     pca = PCA(n_components=8)
+    pca_data = pca.fit_transform(data)
+    pca_df = pd.DataFrame(pca_data, columns=['PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8'])
+    pca_df.insert(0, 'id', df['id'].values)
+    pca_df.insert(1, 'diagnosis', df['diagnosis'].values)
 
-    pca.fit(trainD)
-    train_pca = pca.transform(trainD)
+    train_size = 0.7
 
-    df_transformed_training_X_pca = pd.DataFrame(train_pca)
-    df_transformed_training_X_pca.columns = column_names
-    df_transformed_training_X_pca.insert(0, 'id', trainD['id'].values)
-    df_transformed_training_X_pca.insert(1, 'diagnosis', trainD['diagnosis'].values)
+    train_data, test_data = SplitData(pca_df, train_size)
 
-    pca.fit(testD)
-    test_pca = pca.transform(testD)
+    classifications = Clustering(train_data, test_data, k)
 
-    df_transformed_testing_X_pca = pd.DataFrame(test_pca)
-    df_transformed_testing_X_pca.columns = column_names
-    df_transformed_testing_X_pca.insert(0, 'id', testD['id'].values)
-    df_transformed_testing_X_pca.insert(1, 'diagnosis', testD['diagnosis'].values)
+    accuracy = Metrics(test_data, classifications)
 
-    classifications = Clustering(df_transformed_training_X_pca, df_transformed_testing_X_pca, k)
+    print("The accuracy of the KNN clustering is: {:.3f}%".format(accuracy))
 
-    accuracy = Metrics(df_transformed_testing_X_pca, classifications)
+    # pca = PCA(n_components=8)
+    # pca_data = pca.fit_transform(data)
+    # pca_df = pd.DataFrame(pca_data, columns=['PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8'])
+    # pca_df.insert(0, 'id', df['id'].values)
+    # pca_df.insert(1, 'diagnosis', df['diagnosis'].values)
+    #
+    # # Set the training size
+    # train_size = 0.7
+    #
+    # # Call SplitData() to get the train and test data
+    # train_data, test_data = SplitData(pca_df, train_size)
+    #
+    # # Call Clustering() to obtain the k-nearest neighbors for each datapoint in the test dataset
+    # classifications = Clustering(train_data, test_data, k)
+    #
+    # # Call Metrics() to evaluate the accuracy of the KNN clustering
+    # accuracy = Metrics(test_data, classifications)
+    #
+    # # Print the accuracy
+    # print("The accuracy of the KNN clustering is: {:.3f}%".format(accuracy))
 
-    print("The accuracy of the KNN clustering with PCA performed with packages is: {:.3f}%".format(accuracy))
+    # pca = PCA(n_components=8)
+    #
+    # pca.fit(trainD)
+    # train_pca = pca.transform(trainD)
+    #
+    # df_transformed_training_X_pca = pd.DataFrame(train_pca)
+    # df_transformed_training_X_pca.columns = column_names
+    # df_transformed_training_X_pca.insert(0, 'id', trainD['id'].values)
+    # df_transformed_training_X_pca.insert(1, 'diagnosis', trainD['diagnosis'].values)
+    #
+    # pca.fit(testD)
+    # test_pca = pca.transform(testD)
+    #
+    # df_transformed_testing_X_pca = pd.DataFrame(test_pca)
+    # df_transformed_testing_X_pca.columns = column_names
+    # df_transformed_testing_X_pca.insert(0, 'id', testD['id'].values)
+    # df_transformed_testing_X_pca.insert(1, 'diagnosis', testD['diagnosis'].values)
+    #
+    # classifications = Clustering(df_transformed_training_X_pca, df_transformed_testing_X_pca, k)
+    #
+    # accuracy = Metrics(df_transformed_testing_X_pca, classifications)
+    #
+    # print("The accuracy of the KNN clustering with PCA performed with packages is: {:.3f}%".format(accuracy))
 
 if __name__=="__main__":
     main()
