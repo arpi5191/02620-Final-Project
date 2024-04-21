@@ -6,17 +6,17 @@ import pandas as pd
 def SplitData(data, train_size):
 
     # Shuffle the data
-    shuffled_data = data.sample(frac=1).reset_index(drop=True)
+    shuffled_data = data.sample(frac=1)
 
     # Find the index up until which the training data will be extracted
     trainInd = int(len(shuffled_data) * train_size)
 
     # Obtain the training and testing data
-    trainData = shuffled_data[:trainInd]
-    testData = shuffled_data[trainInd:]
+    train_data = shuffled_data[:trainInd]
+    test_data = shuffled_data[trainInd:]
 
     # Return the training and testing data
-    return trainData, testData
+    return train_data, test_data
 
 # Normalization(): Normalize the data through standardization
 def Normalization(data):
@@ -36,19 +36,22 @@ def Normalization(data):
     return data
 
 # Clustering(): Obtains the k-nearest neighbors
-def Clustering(trainData, testData):
+def Clustering(train_data, test_data, k):
 
     # Create a dictionary for neighbors
     neighbors = {}
 
+    # Create a dictionary for classifications
+    classifications = {}
+
     # Iterate through the indices and rows in the test data
-    for test_index, test_row in testData.iterrows():
+    for test_index, test_row in test_data.iterrows():
         # Convert the features in the test data to a list
         test_features = test_row[2:].tolist()
         # Clear the neighbors list
         neighbors.clear()
         # Iterate through the indices and rows in the train data
-        for train_index, train_row in trainData.iterrows():
+        for train_index, train_row in train_data.iterrows():
             # Convert the features in the train data to a list
             train_features = train_row[2:].tolist()
             # Find the distance between the train and test features
@@ -59,10 +62,50 @@ def Clustering(trainData, testData):
             classification = train_row[1]
             # Set the distance in the neighbors dictionary
             neighbors[(index, classification)] = distance
+        # Sort the neighbors dictionary by values (distance)
+        sorted_neighbors = {k: v for k, v in sorted(neighbors.items(), key=lambda item: item[1])}
+        # Extract the first three neighbors
+        selected_neighbors = dict(list(sorted_neighbors.keys())[:k])
+        # Find the number of benign classifications that have occurred
+        zeroes_count = sum(1 for value in selected_neighbors.values() if value == 0)
+        # Find the number of malignant classifications that have occurred
+        ones_count = sum(1 for value in selected_neighbors.values() if value == 1)
+        # Check if the benign classifications is greater than the number of malignant classifications
+        # If so assign the label as benign, otherwise malignant
+        if zeroes_count > ones_count:
+            classifications[test_index] = 0
+        else:
+            classifications[test_index] = 1
+
+    return classifications
 
 # Distance(): Finds the Euclidean distance between the training and testing features
 def Distance(train_features, test_features):
     return math.sqrt(sum((x - y) ** 2 for x, y in zip(train_features, test_features)))
+
+# Metrics(): Finds the metrics to evaluate the efficiency of the classifications
+def Metrics(test_data, classifications):
+
+    correct = 0
+
+    # Iterate through the indices and rows in the test data
+    for test_index, test_row in test_data.iterrows():
+        # Convert the features in the test data to a list
+        test_features = test_row[2:].tolist()
+        # Obtain the actual classification from the row
+        real_classification = test_row[1]
+        # Obtain the predicted classifications from the clustering we performed
+        predicted_classification = classifications[test_index]
+        # Check if the real classification is equal to the predicted classification
+        # If so, increment # correct
+        if real_classification == predicted_classification:
+            correct += 1
+
+    # Obtain the accuracy
+    accuracy = correct/len(classifications) * 100
+
+    # Return the metrics
+    return accuracy
 
 # Main()
 def main():
@@ -84,10 +127,19 @@ def main():
     train_size = 0.7
 
     # Call SplitData() to get the train and test data
-    trainData, testData = SplitData(data, train_size)
+    train_data, test_data = SplitData(data, train_size)
+
+    # Set the number of k-nearest neighbors
+    k = 3
 
     # Call Clustering() to obtain the k-nearest neighbors for each datapoint in the test dataset
-    Clustering(trainData, testData)
+    classifications = Clustering(train_data, test_data, k)
+
+    # Call Metrics() to evaluate the accuracy of the KNN clustering
+    accuracy = Metrics(test_data, classifications)
+
+    # Print the accuracy
+    print("The accuracy of the KNN clustering is: {:.3f}%".format(accuracy))
 
 if __name__=="__main__":
     main()
