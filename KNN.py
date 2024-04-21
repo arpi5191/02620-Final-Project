@@ -57,6 +57,7 @@ def Distance(train_features, test_features):
 # Metrics(): Finds the metrics to evaluate the efficiency of the classifications
 def Metrics(testD, classifications):
 
+    # Initialize the number of correct values
     correct = 0
 
     # Iterate through the indices and rows in the test data
@@ -82,63 +83,59 @@ def Metrics(testD, classifications):
 # Main()
 def main():
 
+    # This portion of the main() executes the KNN without the PCA
+
+    # Initialize the k-value
     k = 3
 
+    # Call Clustering() to obtain the classifications
     classifications = Clustering(trainD, testD, k)
 
+    # Call Metrics() to obtain the KNN evaluations/statistics
     accuracy = Metrics(testD, classifications)
 
+    # Print the metrics
     print("The accuracy of the KNN clustering without PCA is: {:.3f}%".format(accuracy))
 
     #---------------------------------------------------------------------------------------------------------------------
 
+    # Initialize the k-value
     k = 7
 
     # data = Normalization(df)
+
+    # Call Scaling() to utilize the scaler() package to scale the data
     data = Scaling(df)
 
+    # Call find_PCs() to obtain the PCs
+    # Call PCA_transform() to obtain the projections of the data with the PCs
     num_PCs_needed, variance_covered, principle_components = find_PCs(data)
     transformed_data = PCA_transform(data, principle_components)
 
+    # Obtain the names of the columns
     column_names = [f'PC{i+1}' for i in range(num_PCs_needed)]
 
+    # Convert the transformed data into a dataframe
+    # Insert the id and diagnosis columns in the dataframe
     transformed_data_df = pd.DataFrame(transformed_data)
     transformed_data_df.columns = column_names
     transformed_data_df.insert(0, 'id', df['id'].values)
     transformed_data_df.insert(1, 'diagnosis', df['diagnosis'].values)
 
+    # Initialize the size of the training dataset
     train_size = 0.7
 
+    # Call SplitData() to obtain the train_data and test_data after splitting the dataset
     train_data, test_data = SplitData(transformed_data_df, train_size)
 
+    # Call Clustering() to retrieve the classifications of the data
     classifications = Clustering(train_data, test_data, k)
 
+    # Call Metrics() to get the evaluations/statistics of the data
     accuracy = Metrics(test_data, classifications)
 
-    print("The accuracy of the KNN clustering with PCA without the packages is: {:.3f}%".format(accuracy))
-
-    #---------------------------------------------------------------------------------------------------------------------
-
-    k = 7
-
-    data = Scaling(df)
-
-    pca = PCA(n_components=8)
-    pca_data = pca.fit_transform(data)
-
-    pca_df = pd.DataFrame(pca_data, columns=['PC1', 'PC2', 'PC3', 'PC4', 'PC5', 'PC6', 'PC7', 'PC8'])
-    pca_df.insert(0, 'id', df['id'].values)
-    pca_df.insert(1, 'diagnosis', df['diagnosis'].values)
-
-    train_size = 0.7
-
-    train_data, test_data = SplitData(pca_df, train_size)
-
-    classifications = Clustering(train_data, test_data, k)
-
-    accuracy = Metrics(test_data, classifications)
-
-    print("The accuracy of the KNN clustering is: {:.3f}%".format(accuracy))
+    # Print the metrics of the data
+    print("The accuracy of the KNN clustering with PCA: {:.3f}%".format(accuracy))
 
 if __name__=="__main__":
     main()
