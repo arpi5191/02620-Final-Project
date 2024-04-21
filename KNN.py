@@ -2,7 +2,6 @@
 import math
 import numpy as np
 import pandas as pd
-from sklearn.decomposition import PCA
 from PCA import find_PCs, PCA_transform
 from data_processing import df, trainD, testD, Scaling, Normalization, SplitData
 
@@ -98,6 +97,8 @@ def main():
     print("The accuracy of the KNN clustering without PCA is: {:.3f}%".format(accuracy))
 
     #---------------------------------------------------------------------------------------------------------------------
+
+    # This portion of the main() executes the KNN with the PCA
 
     # Initialize the k-value
     k = 7
