@@ -59,6 +59,12 @@ def Metrics(testD, classifications):
     # Initialize the number of correct values
     correct = 0
 
+    # Initialize the counts
+    tp = 0
+    tn = 0
+    fp = 0
+    fn = 0
+
     # Iterate through the indices and rows in the test data
     for test_index, test_row in testD.iterrows():
         test_id = test_row[0]
@@ -72,12 +78,43 @@ def Metrics(testD, classifications):
         # If so, increment # correct
         if real_classification == predicted_classification:
             correct += 1
+        # Find the true positives
+        if real_classification == 1 and predicted_classification == 1:
+            tp += 1
+        # Find the true negatives
+        if real_classification == 0 and predicted_classification == 0:
+            tn += 1
+        # Find the false positives
+        if real_classification == 0 and predicted_classification == 1:
+            fp += 1
+        # Find the false negatives
+        if real_classification == 1 and predicted_classification == 0:
+            fn += 1
 
-    # Obtain the accuracy
-    accuracy = correct/len(classifications) * 100
+    # Calculate the metrics
+    accuracy = Accuracy(tp, tn, fp, fn)
+    precision = Precision(tp, fp)
+    recall = Recall(tp, fn)
+    f1Score = F1Score(precision, recall)
 
     # Return the metrics
-    return accuracy
+    return accuracy, precision, recall, f1Score
+
+def Accuracy(tp, tn, fp, fn):
+
+    return (tp + tn)/(tp + tn + fp + fn) * 100
+
+def Precision(tp, fp):
+
+    return tp/(tp + fp) * 100
+
+def Recall(tp, fn):
+
+    return tp/(tp + fn) * 100
+
+def F1Score(precision, recall):
+
+    return (2 * precision * recall)/(precision + recall)
 
 # Main()
 def main():
@@ -91,17 +128,23 @@ def main():
     classifications = Clustering(trainD, testD, k)
 
     # Call Metrics() to obtain the KNN evaluations/statistics
-    accuracy = Metrics(testD, classifications)
+    accuracy, precision, recall, f1Score = Metrics(testD, classifications)
 
     # Print the metrics
     print("The accuracy of the KNN clustering without PCA is: {:.3f}%".format(accuracy))
+    print("The precision of the KNN clustering without PCA is: {:.3f}%".format(precision))
+    print("The recall of the KNN clustering without PCA is: {:.3f}%".format(recall))
+    print("The f1 score of the KNN clustering without PCA is: {:.3f}%".format(f1Score))
+
+    # Give a line of space
+    print()
 
     #---------------------------------------------------------------------------------------------------------------------
 
     # This portion of the main() executes the KNN with the PCA
 
     # Initialize the k-value
-    k = 7
+    k = 5
 
     # data = Normalization(df)
 
@@ -133,10 +176,13 @@ def main():
     classifications = Clustering(train_data, test_data, k)
 
     # Call Metrics() to get the evaluations/statistics of the data
-    accuracy = Metrics(test_data, classifications)
+    accuracy, precision, recall, f1Score = Metrics(test_data, classifications)
 
     # Print the metrics of the data
     print("The accuracy of the KNN clustering with PCA: {:.3f}%".format(accuracy))
+    print("The precision of the KNN clustering with PCA: {:.3f}%".format(precision))
+    print("The recall of the KNN clustering with PCA: {:.3f}%".format(recall))
+    print("The f1 score of the KNN clustering with PCA: {:.3f}%".format(f1Score))
 
 if __name__=="__main__":
     main()
