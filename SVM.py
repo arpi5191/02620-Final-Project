@@ -1,6 +1,10 @@
 # Import packages
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix
 from data_processing import df, Scaling, SplitData
+from KNN import Accuracy, Precision, Recall, F1Score
+
+
 from sklearn.metrics import accuracy_score
 
 # Call Scaling() to utilize the scaler() package to scale the data
@@ -33,8 +37,23 @@ linear_model.fit(X_train, y_train)
 # Generate predictions on the X_test dataset
 y_pred = linear_model.predict(X_test)
 
-# Retrieve metrics on the model's performance
-accuracy = accuracy_score(y_test, y_pred)
+# Generate a confusion matrix
+cm = confusion_matrix(y_test, y_pred)
+
+# Retrieve the following params
+tp = cm[0][0]
+fp = cm[0][1]
+fn = cm[1][0]
+tn = cm[1][1]
+
+# Obtain the metrics
+accuracy = Accuracy(tp, tn, fp, fn)
+precision = Precision(tp, fp)
+recall = Recall(tp, fn)
+f1Score = F1Score(precision, recall)
 
 # Print the statistics
-print(f'Accuracy: {accuracy * 100:.2f}%')
+print("The Accuracy of SVM is: {:.3f}%".format(accuracy))
+print("The Precision of SVM is: {:.3f}%".format(precision))
+print("The Recall of SVM is: {:.3f}%".format(recall))
+print("The F1-Score of SVM is: {:.3f}%".format(f1Score))
