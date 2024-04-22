@@ -2,6 +2,7 @@
 from sklearn.svm import SVC
 import matplotlib.pyplot as plt
 from data_processing import df, Scaling, SplitData
+from sklearn.model_selection import cross_val_score
 from KNN import Accuracy, Precision, Recall, F1Score
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
@@ -29,7 +30,15 @@ y_test = test_data['diagnosis']
 # Define the SVM model with a linear kernel
 linear_model = SVC(kernel='linear', C=0.3)
 
-# Train the SVM model
+# Perform cross-validation to evaluate model performance
+results = cross_val_score(linear_model, X_train, y_train, cv=5)
+print("Cross-Validation Accuracy results:", results)
+print("Average Cross-Validation Accuracy: {:.3f}%".format(results.mean() * 100))
+
+# Give a line of space
+print()
+
+# Train the SVM model on the entire training set for final use
 linear_model.fit(X_train, y_train)
 
 # Generate predictions on the X_test dataset

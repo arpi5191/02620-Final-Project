@@ -1,4 +1,5 @@
 # Import packages
+import os
 import math
 import numpy as np
 import pandas as pd
@@ -26,15 +27,19 @@ def Clustering(trainD, testD, k):
         for train_index, train_row in trainD.iterrows():
             # Convert the features in the train data to a list
             train_features = train_row[2:].tolist()
-            # Find the distance between the train and test features
-            distance = Distance(train_features, test_features)
+            # Call Euclidean_Distance() to find the euclidean distance between the train and test features
+            distance = Euclidean_Distance(train_features, test_features)
+            # Call Manhattan_Distance() to find the manhattan distance between the train and test features
+            # distance = Manhattan_Distance(train_features, test_features)
+            # Call Manhattan_Distance() to find the manhattan distance between the train and test features
+            # distance = Minkowski_Distance(train_features, test_features)
             # Extract the ID number of the training data row
             index = train_row['id']
             # Extract the classification of the training data row
             classification = train_row['diagnosis']
-            # Set the distance in the neighbors dictionary
+            # Set the Euclidean_Distance in the neighbors dictionary
             neighbors[(index, classification)] = distance
-        # Sort the neighbors dictionary by values (distance)
+        # Sort the neighbors dictionary by values (Euclidean_Distance)
         sorted_neighbors = {k: v for k, v in sorted(neighbors.items(), key=lambda item: item[1])}
         # Extract the first three neighbors
         selected_neighbors = dict(list(sorted_neighbors.keys())[:k])
@@ -51,9 +56,17 @@ def Clustering(trainD, testD, k):
 
     return classifications
 
-# Distance(): Finds the Euclidean distance between the training and testing features
-def Distance(train_features, test_features):
+# Euclidean_Distance(): Finds the euclidean distance between the training and testing features
+def Euclidean_Distance(train_features, test_features):
     return math.sqrt(sum((x - y) ** 2 for x, y in zip(train_features, test_features)))
+
+# Manhattan_Distance(): Finds the manhattan distance between the training and testing features
+def Manhattan_Distance(train_features, test_features):
+    return sum(abs(x - y) for x, y in zip(train_features, test_features))
+
+# Minkowski_Distance(): Finds the Minkowski distance between the training and testing features
+def Minkowski_Distance(train_features, test_features, p=2):
+    return math.pow(sum(abs(x - y)**p for x, y in zip(train_features, test_features)), 1/p)
 
 # Metrics(): Finds the metrics to evaluate the efficiency of the classifications
 def Metrics(flag, testD, classifications):
@@ -94,7 +107,7 @@ def Metrics(flag, testD, classifications):
             fn += 1
 
     # Retrieve and plot the confusion matrix
-    ConfusionMatrix(flag, tn, fp, fn, tp)
+    Confusion_Matrix(flag, tn, fp, fn, tp)
 
     # Calculate the metrics
     accuracy = Accuracy(tp, tn, fp, fn)
@@ -106,7 +119,7 @@ def Metrics(flag, testD, classifications):
     return accuracy, precision, recall, f1Score
 
 # ConfusionMatrix: Obtain and graph the confusion matrix
-def ConfusionMatrix(flag, tp, tn, fp, fn):
+def Confusion_Matrix(flag, tp, tn, fp, fn):
 
     # Retrieve the confusion matrix
     cm = np.array([[tp, fp], [tn, fn]])
@@ -117,9 +130,9 @@ def ConfusionMatrix(flag, tp, tn, fp, fn):
 
     # Set the title of the plot according to whether PCA was utilized in the implementation or not
     if flag == "PCA":
-        plt.savefig('Images/confusion_matrix_KNN_PCA.png', dpi=300)
+        plt.savefig('Results/confusion_matrix_KNN_PCA.png', dpi=300)
     else:
-        plt.savefig('Images/confusion_matrix_KNN.png', dpi=300)
+        plt.savefig('Results/confusion_matrix_KNN.png', dpi=300)
 
 # Accuracy: Returns the accuracy
 def Accuracy(tp, tn, fp, fn):
@@ -143,28 +156,6 @@ def F1Score(precision, recall):
 
 # Main()
 def main():
-
-    # This portion of the main() executes the KNN without the PCA
-
-    # Initialize the k-value
-    k = 3
-
-    # Call Clustering() to obtain the classifications
-    classifications = Clustering(trainD, testD, k)
-
-    # Call Metrics() to obtain the KNN evaluations/statistics
-    accuracy, precision, recall, f1Score = Metrics("", testD, classifications)
-
-    # Print the metrics
-    print("The accuracy of the KNN clustering without PCA is: {:.3f}%".format(accuracy))
-    print("The precision of the KNN clustering without PCA is: {:.3f}%".format(precision))
-    print("The recall of the KNN clustering without PCA is: {:.3f}%".format(recall))
-    print("The f1 score of the KNN clustering without PCA is: {:.3f}%".format(f1Score))
-
-    # Give a line of space
-    print()
-
-    #---------------------------------------------------------------------------------------------------------------------
 
     # This portion of the main() executes the KNN with the PCA
 
@@ -208,6 +199,47 @@ def main():
     print("The precision of the KNN clustering with PCA: {:.3f}%".format(precision))
     print("The recall of the KNN clustering with PCA: {:.3f}%".format(recall))
     print("The f1 score of the KNN clustering with PCA: {:.3f}%".format(f1Score))
+
+    # Give two lines of space
+    print()
+    print()
+
+    #---------------------------------------------------------------------------------------------------------------------
+
+    # This portion of the main() executes the KNN without the PCA
+
+    accuracies = []
+
+    for k in range(1, 6):
+
+        # Call Clustering() to obtain the classifications
+        classifications = Clustering(trainD, testD, k)
+
+        # Call Metrics() to obtain the KNN evaluations/statistics
+        accuracy, precision, recall, f1Score = Metrics("", testD, classifications)
+
+        # Store the accuracy
+        accuracies.append(accuracy)
+
+        # Print the metrics if k = 5
+        if k == 5:
+            print("The accuracy of the KNN clustering without PCA is {:.3f}% for k = {}.".format(accuracy, k))
+            print("The precision of the KNN clustering without PCA is: {:.3f}% for k = {}.".format(precision, k))
+            print("The recall of the KNN clustering without PCA is: {:.3f}% for k = {}.".format(recall, k))
+            print("The f1 score of the KNN clustering without PCA is: {:.3f}% for k = {}.".format(f1Score, k))
+
+    # Obtain the k-values
+    k_vals = range(1, len(accuracies) + 1)
+
+    # Plot the accuracies over the k-values
+    plt.clf()
+    plt.plot(k_vals, accuracies)
+    plt.title('Accuracies Over the K-Values')
+    plt.xlabel('K-Values')
+    plt.ylabel('Accuracies')
+    plt.savefig('Results/KNN_Euclidean_Accuracies', dpi=300)
+    # plt.savefig('Results/KNN_Manhattan_Accuracies', dpi=300)
+    # plt.savefig('Results/KNN_Minkowski_Accuracies', dpi=300)
 
 if __name__=="__main__":
     main()
