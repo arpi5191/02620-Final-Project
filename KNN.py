@@ -2,7 +2,9 @@
 import math
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from PCA import find_PCs, PCA_transform
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 from data_processing import df, trainD, testD, Scaling, Normalization, SplitData
 
 # Clustering(): Obtains the k-nearest neighbors
@@ -54,7 +56,7 @@ def Distance(train_features, test_features):
     return math.sqrt(sum((x - y) ** 2 for x, y in zip(train_features, test_features)))
 
 # Metrics(): Finds the metrics to evaluate the efficiency of the classifications
-def Metrics(testD, classifications):
+def Metrics(flag, testD, classifications):
 
     # Initialize the number of correct values
     correct = 0
@@ -91,6 +93,9 @@ def Metrics(testD, classifications):
         if real_classification == 1 and predicted_classification == 0:
             fn += 1
 
+    # Retrieve and plot the confusion matrix
+    ConfusionMatrix(flag, tn, fp, fn, tp)
+
     # Calculate the metrics
     accuracy = Accuracy(tp, tn, fp, fn)
     precision = Precision(tp, fp)
@@ -100,18 +105,38 @@ def Metrics(testD, classifications):
     # Return the metrics
     return accuracy, precision, recall, f1Score
 
+# ConfusionMatrix: Obtain and graph the confusion matrix
+def ConfusionMatrix(flag, tp, tn, fp, fn):
+
+    # Retrieve the confusion matrix
+    cm = np.array([[tp, fp], [tn, fn]])
+
+    # Create and plot a confusion matrix
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm)
+    disp.plot()
+
+    # Set the title of the plot according to whether PCA was utilized in the implementation or not
+    if flag == "PCA":
+        plt.savefig('Images/confusion_matrix_KNN_PCA.png', dpi=300)
+    else:
+        plt.savefig('Images/confusion_matrix_KNN.png', dpi=300)
+
+# Accuracy: Returns the accuracy
 def Accuracy(tp, tn, fp, fn):
 
     return (tp + tn)/(tp + tn + fp + fn) * 100
 
+# Precision: Returns the precision
 def Precision(tp, fp):
 
     return tp/(tp + fp) * 100
 
+# Recall: Returns the recall
 def Recall(tp, fn):
 
     return tp/(tp + fn) * 100
 
+# Recall the F1Score
 def F1Score(precision, recall):
 
     return (2 * precision * recall)/(precision + recall)
@@ -128,7 +153,7 @@ def main():
     classifications = Clustering(trainD, testD, k)
 
     # Call Metrics() to obtain the KNN evaluations/statistics
-    accuracy, precision, recall, f1Score = Metrics(testD, classifications)
+    accuracy, precision, recall, f1Score = Metrics("", testD, classifications)
 
     # Print the metrics
     print("The accuracy of the KNN clustering without PCA is: {:.3f}%".format(accuracy))
@@ -176,7 +201,7 @@ def main():
     classifications = Clustering(train_data, test_data, k)
 
     # Call Metrics() to get the evaluations/statistics of the data
-    accuracy, precision, recall, f1Score = Metrics(test_data, classifications)
+    accuracy, precision, recall, f1Score = Metrics("PCA", test_data, classifications)
 
     # Print the metrics of the data
     print("The accuracy of the KNN clustering with PCA: {:.3f}%".format(accuracy))

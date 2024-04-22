@@ -1,11 +1,9 @@
 # Import packages
 from sklearn.svm import SVC
-from sklearn.metrics import confusion_matrix
+import matplotlib.pyplot as plt
 from data_processing import df, Scaling, SplitData
 from KNN import Accuracy, Precision, Recall, F1Score
-
-
-from sklearn.metrics import accuracy_score
+from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 # Call Scaling() to utilize the scaler() package to scale the data
 data = Scaling(df)
@@ -40,11 +38,16 @@ y_pred = linear_model.predict(X_test)
 # Generate a confusion matrix
 cm = confusion_matrix(y_test, y_pred)
 
+# Create and plot a confusion matrix
+disp = ConfusionMatrixDisplay(confusion_matrix=cm, display_labels=linear_model.classes_)
+disp.plot()
+plt.savefig('Images/confusion_matrix_SVM.png', dpi=300)
+
 # Retrieve the following params
-tp = cm[0][0]
+tn = cm[0][0]
 fp = cm[0][1]
 fn = cm[1][0]
-tn = cm[1][1]
+tp = cm[1][1]
 
 # Obtain the metrics
 accuracy = Accuracy(tp, tn, fp, fn)
