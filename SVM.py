@@ -89,6 +89,19 @@ def main():
     print("The Recall of SVM with Linear Model is: {:.3f}%".format(recall))
     print("The F1-Score of SVM with Linear Model is: {:.3f}%".format(f1Score))
 
+    y_scores = linear_model.decision_function(X_test)
+
+    precision, recall, thresholds = precision_recall_curve(y_test, y_scores)
+
+    plt.clf()
+    plt.plot(recall, precision, marker='.', label='Precision-Recall Curve')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve for SVM Classifier')
+
+    plt.savefig('Results/Precision_Recall_Curve_SVM_Linear.png', dpi=300, format='png')
+
+
     print()
     print()
 
@@ -114,6 +127,18 @@ def main():
     print("The Precision of SVM with Polynomial Model is: {:.3f}%".format(precision))
     print("The Recall of SVM with Polynomial Model is: {:.3f}%".format(recall))
     print("The F1-Score of SVM with Polynomial Model is: {:.3f}%".format(f1Score))
+
+    y_scores = polynomial_model.decision_function(X_test)
+
+    precision, recall, thresholds = precision_recall_curve(y_test, y_scores)
+
+    plt.clf()
+    plt.plot(recall, precision, marker='.', label='Precision-Recall Curve')
+    plt.xlabel('Recall')
+    plt.ylabel('Precision')
+    plt.title('Precision-Recall Curve for SVM Classifier')
+
+    plt.savefig('Results/Precision_Recall_Curve_SVM_Polynomial.png', dpi=300, format='png')
 
 if __name__=="__main__":
     main()
