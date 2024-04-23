@@ -6,10 +6,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from PCA import find_PCs, PCA_transform
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
-from data_processing import df, trainD, testD, Scaling, Normalization, SplitData
+from data_processing import df, Scaling, SplitData
 
 # Clustering(): Obtains the k-nearest neighbors
-def Clustering(trainD, testD, k):
+def Clustering(train_data, test_data, k):
 
     # Create a dictionary for neighbors
     neighbors = {}
@@ -18,13 +18,13 @@ def Clustering(trainD, testD, k):
     classifications = {}
 
     # Iterate through the indices and rows in the test data
-    for test_index, test_row in testD.iterrows():
+    for test_index, test_row in test_data.iterrows():
         # Convert the features in the test data to a list
         test_features = test_row[2:].tolist()
         # Clear the neighbors list
         neighbors.clear()
         # Iterate through the indices and rows in the train data
-        for train_index, train_row in trainD.iterrows():
+        for train_index, train_row in train_data.iterrows():
             # Convert the features in the train data to a list
             train_features = train_row[2:].tolist()
             # Call Euclidean_Distance() to find the euclidean distance between the train and test features
@@ -54,13 +54,14 @@ def Clustering(trainD, testD, k):
         else:
             classifications[test_row[0]] = 1
 
+    # Return classifications
     return classifications
 
-# Euclidean_Distance(): Finds the euclidean distance between the training and testing features
+# Euclidean_Distance(): Finds the Euclidean distance between the training and testing features
 def Euclidean_Distance(train_features, test_features):
     return math.sqrt(sum((x - y) ** 2 for x, y in zip(train_features, test_features)))
 
-# Manhattan_Distance(): Finds the manhattan distance between the training and testing features
+# Manhattan_Distance(): Finds the Manhattan distance between the training and testing features
 def Manhattan_Distance(train_features, test_features):
     return sum(abs(x - y) for x, y in zip(train_features, test_features))
 
@@ -69,7 +70,7 @@ def Minkowski_Distance(train_features, test_features, p=2):
     return math.pow(sum(abs(x - y)**p for x, y in zip(train_features, test_features)), 1/p)
 
 # Metrics(): Finds the metrics to evaluate the efficiency of the classifications
-def Metrics(flag, testD, classifications):
+def Metrics(flag, test_data, classifications):
 
     # Initialize the number of correct values
     correct = 0
@@ -81,7 +82,8 @@ def Metrics(flag, testD, classifications):
     fn = 0
 
     # Iterate through the indices and rows in the test data
-    for test_index, test_row in testD.iterrows():
+    for test_index, test_row in test_data.iterrows():
+        # Obtain the test id
         test_id = test_row[0]
         # Convert the features in the test data to a list
         test_features = test_row[2:].tolist()
@@ -118,7 +120,7 @@ def Metrics(flag, testD, classifications):
     # Return the metrics
     return accuracy, precision, recall, f1Score
 
-# ConfusionMatrix: Obtain and graph the confusion matrix
+# ConfusionMatrix(): Obtain and graph the confusion matrix
 def Confusion_Matrix(flag, tp, tn, fp, fn):
 
     # Retrieve the confusion matrix
@@ -134,46 +136,54 @@ def Confusion_Matrix(flag, tp, tn, fp, fn):
     else:
         plt.savefig('Results/confusion_matrix_KNN.png', dpi=300)
 
-# Accuracy: Returns the accuracy
+# Accuracy(): Returns the accuracy
 def Accuracy(tp, tn, fp, fn):
 
     return (tp + tn)/(tp + tn + fp + fn) * 100
 
-# Precision: Returns the precision
+# Precision(): Returns the precision
 def Precision(tp, fp):
 
     return tp/(tp + fp) * 100
 
-# Recall: Returns the recall
+# Recall(): Returns the recall
 def Recall(tp, fn):
 
     return tp/(tp + fn) * 100
 
-# Recall the F1Score
+# F1Score(): Recall the F1Score
 def F1Score(precision, recall):
 
     return (2 * precision * recall)/(precision + recall)
 
+# KNN(): Calculate the KNN on the train and test datasets
 def KNN(flag, train_data, test_data):
 
+    # Create a list to store the accuracies
     accuracies = []
 
+    # Iterate through k-values from 1 to 5
     for k in range(1, 6):
 
         # Call Clustering() to obtain the classifications
-        classifications = Clustering(trainD, testD, k)
+        classifications = Clustering(train_data, test_data, k)
 
         # Call Metrics() to obtain the KNN evaluations/statistics
-        accuracy, precision, recall, f1Score = Metrics("", testD, classifications)
+        if flag == "PCA":
+            accuracy, precision, recall, f1Score = Metrics("PCA", test_data, classifications)
+        else:
+            accuracy, precision, recall, f1Score = Metrics("", test_data, classifications)
 
         # Store the accuracy
         accuracies.append(accuracy)
 
+        # Print the accuracy, precision, recall and f1-score
         print("The accuracy of the KNN clustering {:.3f}% for k = {}.".format(accuracy, k))
         print("The precision of the KNN clustering {:.3f}% for k = {}.".format(precision, k))
         print("The recall of the KNN clustering {:.3f}% for k = {}.".format(recall, k))
         print("The f1 score of the KNN clustering {:.3f}% for k = {}.".format(f1Score, k))
 
+        # Print an empty line
         print()
 
     # Obtain the k-values
@@ -186,6 +196,7 @@ def KNN(flag, train_data, test_data):
     plt.xlabel('K-Values')
     plt.ylabel('Accuracies')
 
+    # Set the title of the image
     if flag == "PCA":
         plt.savefig('Results/KNN_Euclidean_Accuracies_PCA', dpi=300)
         # plt.savefig('Results/KNN_Manhattan_Accuracies_PCA', dpi=300)
@@ -210,10 +221,9 @@ def main():
     # Initialize the k-value
     k = 5
 
-    # data = Normalization(df)
-
     # Call Scaling() to utilize the scaler() package to scale the data
     data = Scaling(df)
+    # data = Normalization(df)
 
     # Call find_PCs() to obtain the PCs
     # Call PCA_transform() to obtain the projections of the data with the PCs
@@ -236,6 +246,7 @@ def main():
     # Call SplitData() to obtain the train_data and test_data after splitting the dataset
     train_data, test_data = SplitData(transformed_data_df, train_size)
 
+    # Call KNN() to perform the KNN on the 8 PCs
     KNN("PCA", train_data, test_data)
 
     # Give two lines of space
@@ -253,7 +264,11 @@ def main():
     # Give a line of space
     print()
 
-    KNN("No PCA", trainD, testD)
+    # Call SplitData() to obtain the train_data and test_data after splitting the dataset
+    train_data, test_data = SplitData(df, train_size)
+
+    # Call KNN() to perform the KNN on the training and testing dataset
+    KNN("", train_data, test_data)
 
 if __name__=="__main__":
     main()
