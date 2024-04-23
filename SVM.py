@@ -113,7 +113,7 @@ def Evaluate(cm):
     return accuracy, precision, recall, f1Score
 
 # PrecisionRecall(): Plot the precision-recall curve
-def PrecisionRecall(linear_model, X_test, y_test):
+def PrecisionRecall(flag, linear_model, X_test, y_test):
 
     # Obtain the y scores from the X test dataset
     y_scores = linear_model.decision_function(X_test)
@@ -127,7 +127,12 @@ def PrecisionRecall(linear_model, X_test, y_test):
     plt.xlabel('Recall')
     plt.ylabel('Precision')
     plt.title('Precision-Recall Curve for SVM Classifier')
-    plt.savefig('Results/Precision_Recall_Curve_SVM_Linear.png', dpi=300, format='png')
+
+    # Save the figure
+    if flag == "PCA":
+        plt.savefig('Results/Precision_Recall_Curve_SVM_Linear_PCA.png', dpi=300, format='png')
+    else:
+        plt.savefig('Results/Precision_Recall_Curve_SVM_Linear.png', dpi=300, format='png')
 
 # Main()
 def main():
@@ -166,7 +171,7 @@ def main():
     linear_model, cm = LinearModel("PCA", X_train, y_train, X_test, y_test)
 
     # Call PrecisionRecall() to plot the precision-recall curve
-    PrecisionRecall(linear_model, X_test, y_test)
+    PrecisionRecall("PCA", linear_model, X_test, y_test)
 
     # Call Evaluate() to obtain the metrics for the linear model
     accuracy, precision, recall, f1Score = Evaluate(cm)
@@ -211,10 +216,10 @@ def main():
     y_test = test_data['diagnosis']
 
     # Call LinearModel() to plot the heatmap
-    linear_model, cm = LinearModel("PCA", X_train, y_train, X_test, y_test)
+    linear_model, cm = LinearModel("", X_train, y_train, X_test, y_test)
 
     # Call PrecisionRecall() to plot the precision-recall curve
-    PrecisionRecall(linear_model, X_test, y_test)
+    PrecisionRecall("", linear_model, X_test, y_test)
 
     # Call Evaluate() to obtain the metrics for the linear model
     accuracy, precision, recall, f1Score = Evaluate(cm)
