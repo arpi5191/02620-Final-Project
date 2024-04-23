@@ -4,13 +4,13 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from data_processing import df, Normalization, SplitData
+from data_processing import df
 
 # Initialization(): Randomly intializes the points for the K-Means clustering
-def Initialization(df):
+def Initialization(df, k):
 
     # Obtain the centroids
-    random_points = df.sample(n=4)
+    random_points = df.sample(n=k)
 
     # Return the points of the centroid
     return random_points
@@ -111,7 +111,7 @@ def Means(df, clusters):
     # Return means
     return means
 
-def Heatmap_Raw(df):
+def Heatmap_Raw(df, k):
 
     # Drop the id and diagnosis columns before obtaining the correlation matrix
     cleaned_df = df.drop(['id', 'diagnosis'], axis=1, errors='ignore')
@@ -119,17 +119,15 @@ def Heatmap_Raw(df):
     # Obtain the correlation matrix of the raw data
     corr_mat = np.corrcoef(cleaned_df, rowvar = True)
 
-    print(corr_mat)
-
     # Plot the heatmap of the raw data
     plt.figure(figsize=(8, 8))
     plt.imshow(corr_mat, cmap='viridis', interpolation='nearest')
     plt.title("Heatmap of the Raw Data")
     plt.colorbar()
-    plt.savefig("Results/Heatmap_Raw_Data.png")
+    plt.savefig("Results/Heatmap_Raw_Data_" + str(k) + "_.png")
     plt.close()
 
-def Heatmap_Expression(df, clusters):
+def Heatmap_Expression(df, actual_df, clusters, k):
 
     # Assuming df is your DataFrame and clusters is a dictionary with each cluster's IDs as lists
     columns = df.columns
@@ -137,12 +135,50 @@ def Heatmap_Expression(df, clusters):
     # Create an empty DataFrame for cluster values
     cluster_df = pd.DataFrame(columns=columns)
 
+    # Define Index
+    i = 1
+
     # Iterate through the clusters dictionary, obtain the genes in each cluster, and add the genes to the cluster_vals
     for key, value in clusters.items():
+
         # Extract rows where 'id' is in the list of values for this cluster
         rows = df[df['id'].isin(value)]
-        # Use concat instead of append
+
+        # Extract actual rows where 'id' is in the list of values for this cluster
+        actual_rows = actual_df[actual_df['id'].isin(value)]
+
+        # Check if k is equal to the number of breast cancer subtypes
+        if k == 4:
+
+            # Find the following metrics
+            means = actual_rows.mean()
+            medians = actual_rows.median()
+            std_devs = actual_rows.std()
+
+            # Print the mean
+            print("Means for Cluster {} is:\n{}".format(i, means))
+
+            # Give a line of space
+            print()
+
+            # Print the median
+            print("Medians for Cluster {} is:\n{}".format(i, medians))
+
+            # Give a line of space
+            print()
+
+            # Print the standard deviation
+            print("Standard Deviations for Cluster {} is:\n{}".format(i, std_devs))
+
+            # Give two lines of space
+            print()
+            print()
+
+        # Add the rows to the clusters dataFrame
         cluster_df = pd.concat([cluster_df, rows], ignore_index=True)
+
+        # Increment the Index
+        i += 1
 
     # Drop the id and diagnosis columns before obtaining the correlation matrix
     cleaned_df = cluster_df.drop(['id', 'diagnosis'], axis=1, errors='ignore')
@@ -150,45 +186,54 @@ def Heatmap_Expression(df, clusters):
     # Obtain the correlation matrix of the raw data
     corr_mat = np.corrcoef(cleaned_df, rowvar = True)
 
-    print(corr_mat)
-
-    # # Obtain the correlation matrix of the raw data
-    # corr_mat = cleaned_df.corr()
-
     # Plot the heatmap of the clustered data
     plt.figure(figsize=(8, 8))
     plt.imshow(corr_mat, cmap='viridis', interpolation='nearest')
     plt.title("Heatmap of the Clustered Data")
     plt.colorbar()
-    plt.savefig("Results/Heatmap_Clustered_Data.png")
+    plt.savefig("Results/Heatmap_Clustered_Data" + str(k) + "_.png")
     plt.close()
 
 # Main()
 def main():
 
-    # Call Initialization to obtain the random points
-    random_points = Initialization(df)
+    # Obtain the actual dataset from the file
+    actual_df = pd.read_csv('data.csv')
 
-    # Call Clustering() to obtain the new clusters
-    clusters = Clustering(df, random_points)
+    # Drop the last row as it is meaningless
+    actual_df.drop(actual_df.columns[-1], axis=1, inplace=True)
 
-    Heatmap_Raw(df)
+    # Perform one-hot encoding for the diagnosis categorical feature (B = 0, M = 1)
+    actual_df["diagnosis"] = actual_df["diagnosis"].replace('B', 0)
+    actual_df["diagnosis"] = actual_df["diagnosis"].replace('M', 1)
 
-    # Implement an infinite loop
-    # while(True):
-    for i in range(50):
-        # Call Means() to obtain the means
-        means = Means(df, clusters)
-        # Call Clustering() to obtain the clusters
-        clusters = Clustering(df, means)
-        # # Check if clusters equal the new clusters
-        # if clusters == new_clusters:
-        #     break
-        # # Otherwise copy the new clusters into clusters
-        # else:
-        #     clusters = copy.deepcopy(new_clusters)
+    # Iterate through k-values
+    for k in range(2, 11):
 
-    Heatmap_Expression(df, clusters)
+        # Call Initialization to obtain the random points
+        random_points = Initialization(df, k)
+
+        # Call Clustering() to obtain the new clusters
+        clusters = Clustering(df, random_points)
+
+        # Plot the heatmap of the raw data
+        Heatmap_Raw(df, k)
+
+        # Implement an infinite loop
+        while(True):
+            # Call Means() to obtain the means
+            means = Means(df, clusters)
+            # Call Clustering() to obtain the clusters
+            new_clusters = Clustering(df, means)
+            # Check if clusters equal the new clusters
+            if clusters == new_clusters:
+                break
+            # Otherwise copy the new clusters into clusters
+            else:
+                clusters = copy.deepcopy(new_clusters)
+
+        # Plot the heatmap of the expression data
+        Heatmap_Expression(df, actual_df, clusters, k)
 
 if __name__ == "__main__":
     main()
