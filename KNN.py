@@ -154,10 +154,58 @@ def F1Score(precision, recall):
 
     return (2 * precision * recall)/(precision + recall)
 
+def KNN(flag, train_data, test_data):
+
+    accuracies = []
+
+    for k in range(1, 6):
+
+        # Call Clustering() to obtain the classifications
+        classifications = Clustering(trainD, testD, k)
+
+        # Call Metrics() to obtain the KNN evaluations/statistics
+        accuracy, precision, recall, f1Score = Metrics("", testD, classifications)
+
+        # Store the accuracy
+        accuracies.append(accuracy)
+
+        print("The accuracy of the KNN clustering {:.3f}% for k = {}.".format(accuracy, k))
+        print("The precision of the KNN clustering {:.3f}% for k = {}.".format(precision, k))
+        print("The recall of the KNN clustering {:.3f}% for k = {}.".format(recall, k))
+        print("The f1 score of the KNN clustering {:.3f}% for k = {}.".format(f1Score, k))
+
+        print()
+
+    # Obtain the k-values
+    k_vals = range(1, len(accuracies) + 1)
+
+    # Plot the accuracies over the k-values
+    plt.clf()
+    plt.plot(k_vals, accuracies)
+    plt.title('Accuracies Over the K-Values')
+    plt.xlabel('K-Values')
+    plt.ylabel('Accuracies')
+
+    if flag == "PCA":
+        plt.savefig('Results/KNN_Euclidean_Accuracies_PCA', dpi=300)
+        # plt.savefig('Results/KNN_Manhattan_Accuracies_PCA', dpi=300)
+        # plt.savefig('Results/KNN_Minkowski_Accuracies_PCA', dpi=300)
+    else:
+        plt.savefig('Results/KNN_Euclidean_Accuracies', dpi=300)
+        # plt.savefig('Results/KNN_Manhattan_Accuracies', dpi=300)
+        # plt.savefig('Results/KNN_Minkowski_Accuracies', dpi=300)
+
 # Main()
 def main():
 
-    # This portion of the main() executes the KNN with the PCA
+    # Give a line of space
+    print()
+
+    # Print this clarification
+    print("These results are for when KNN is run on the dataset with PCA.")
+
+    # Give a line of space
+    print()
 
     # Initialize the k-value
     k = 5
@@ -188,17 +236,7 @@ def main():
     # Call SplitData() to obtain the train_data and test_data after splitting the dataset
     train_data, test_data = SplitData(transformed_data_df, train_size)
 
-    # Call Clustering() to retrieve the classifications of the data
-    classifications = Clustering(train_data, test_data, k)
-
-    # Call Metrics() to get the evaluations/statistics of the data
-    accuracy, precision, recall, f1Score = Metrics("PCA", test_data, classifications)
-
-    # Print the metrics of the data
-    print("The accuracy of the KNN clustering with PCA: {:.3f}%".format(accuracy))
-    print("The precision of the KNN clustering with PCA: {:.3f}%".format(precision))
-    print("The recall of the KNN clustering with PCA: {:.3f}%".format(recall))
-    print("The f1 score of the KNN clustering with PCA: {:.3f}%".format(f1Score))
+    KNN("PCA", train_data, test_data)
 
     # Give two lines of space
     print()
@@ -206,40 +244,16 @@ def main():
 
     #---------------------------------------------------------------------------------------------------------------------
 
-    # This portion of the main() executes the KNN without the PCA
+    # Give a line of space
+    print()
 
-    accuracies = []
+    # Print this clarification
+    print("These results are for when PCA is run on the dataset without PCA.")
 
-    for k in range(1, 6):
+    # Give a line of space
+    print()
 
-        # Call Clustering() to obtain the classifications
-        classifications = Clustering(trainD, testD, k)
-
-        # Call Metrics() to obtain the KNN evaluations/statistics
-        accuracy, precision, recall, f1Score = Metrics("", testD, classifications)
-
-        # Store the accuracy
-        accuracies.append(accuracy)
-
-        # Print the metrics if k = 5
-        if k == 5:
-            print("The accuracy of the KNN clustering without PCA is {:.3f}% for k = {}.".format(accuracy, k))
-            print("The precision of the KNN clustering without PCA is: {:.3f}% for k = {}.".format(precision, k))
-            print("The recall of the KNN clustering without PCA is: {:.3f}% for k = {}.".format(recall, k))
-            print("The f1 score of the KNN clustering without PCA is: {:.3f}% for k = {}.".format(f1Score, k))
-
-    # Obtain the k-values
-    k_vals = range(1, len(accuracies) + 1)
-
-    # Plot the accuracies over the k-values
-    plt.clf()
-    plt.plot(k_vals, accuracies)
-    plt.title('Accuracies Over the K-Values')
-    plt.xlabel('K-Values')
-    plt.ylabel('Accuracies')
-    plt.savefig('Results/KNN_Euclidean_Accuracies', dpi=300)
-    # plt.savefig('Results/KNN_Manhattan_Accuracies', dpi=300)
-    # plt.savefig('Results/KNN_Minkowski_Accuracies', dpi=300)
+    KNN("No PCA", trainD, testD)
 
 if __name__=="__main__":
     main()
