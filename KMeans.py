@@ -4,7 +4,7 @@ from data_processing import df, Normalization, SplitData
 
 def Initialization(df):
 
-    random_points = df.sample(n=2)
+    random_points = df.sample(n=4)
 
     return random_points
 
