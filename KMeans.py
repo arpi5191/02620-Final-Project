@@ -1,7 +1,9 @@
 # Import packages
 import copy
 import math
+import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
 from data_processing import df, Normalization, SplitData
 
 # Initialization(): Randomly intializes the points for the K-Means clustering
@@ -109,6 +111,58 @@ def Means(df, clusters):
     # Return means
     return means
 
+def Heatmap_Raw(df):
+
+    # Drop the id and diagnosis columns before obtaining the correlation matrix
+    cleaned_df = df.drop(['id', 'diagnosis'], axis=1, errors='ignore')
+
+    # Obtain the correlation matrix of the raw data
+    corr_mat = np.corrcoef(cleaned_df, rowvar = True)
+
+    print(corr_mat)
+
+    # Plot the heatmap of the raw data
+    plt.figure(figsize=(8, 8))
+    plt.imshow(corr_mat, cmap='viridis', interpolation='nearest')
+    plt.title("Heatmap of the Raw Data")
+    plt.colorbar()
+    plt.savefig("Results/Heatmap_Raw_Data.png")
+    plt.close()
+
+def Heatmap_Expression(df, clusters):
+
+    # Assuming df is your DataFrame and clusters is a dictionary with each cluster's IDs as lists
+    columns = df.columns
+
+    # Create an empty DataFrame for cluster values
+    cluster_df = pd.DataFrame(columns=columns)
+
+    # Iterate through the clusters dictionary, obtain the genes in each cluster, and add the genes to the cluster_vals
+    for key, value in clusters.items():
+        # Extract rows where 'id' is in the list of values for this cluster
+        rows = df[df['id'].isin(value)]
+        # Use concat instead of append
+        cluster_df = pd.concat([cluster_df, rows], ignore_index=True)
+
+    # Drop the id and diagnosis columns before obtaining the correlation matrix
+    cleaned_df = cluster_df.drop(['id', 'diagnosis'], axis=1, errors='ignore')
+
+    # Obtain the correlation matrix of the raw data
+    corr_mat = np.corrcoef(cleaned_df, rowvar = True)
+
+    print(corr_mat)
+
+    # # Obtain the correlation matrix of the raw data
+    # corr_mat = cleaned_df.corr()
+
+    # Plot the heatmap of the clustered data
+    plt.figure(figsize=(8, 8))
+    plt.imshow(corr_mat, cmap='viridis', interpolation='nearest')
+    plt.title("Heatmap of the Clustered Data")
+    plt.colorbar()
+    plt.savefig("Results/Heatmap_Clustered_Data.png")
+    plt.close()
+
 # Main()
 def main():
 
@@ -118,18 +172,23 @@ def main():
     # Call Clustering() to obtain the new clusters
     clusters = Clustering(df, random_points)
 
+    Heatmap_Raw(df)
+
     # Implement an infinite loop
-    while(True):
+    # while(True):
+    for i in range(50):
         # Call Means() to obtain the means
         means = Means(df, clusters)
         # Call Clustering() to obtain the clusters
-        new_clusters = Clustering(df, means)
-        # Check if clusters equal the new clusters
-        if clusters == new_clusters:
-            break
-        # Otherwise copy the new clusters into clusters
-        else:
-            clusters = copy.deepcopy(new_clusters)
+        clusters = Clustering(df, means)
+        # # Check if clusters equal the new clusters
+        # if clusters == new_clusters:
+        #     break
+        # # Otherwise copy the new clusters into clusters
+        # else:
+        #     clusters = copy.deepcopy(new_clusters)
+
+    Heatmap_Expression(df, clusters)
 
 if __name__ == "__main__":
     main()
