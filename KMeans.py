@@ -4,25 +4,25 @@ import math
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-from data_processing import df
+from data_processing import Normalization
 
 # Initialization(): Randomly intializes the points for the K-Means clustering
-def Initialization(df, k):
+def Initialization(data, k):
 
     # Obtain the centroids
-    random_points = df.sample(n=k)
+    random_points = data.sample(n=k)
 
     # Return the points of the centroid
     return random_points
 
 # Clustering(): Clusters the patients into multiple subtypes utilizing the means of the centroids
-def Clustering(df, random_points):
+def Clustering(data, random_points):
 
     # Initialize a dictionary of clusters
     clusters = {i: [] for i in range(len(random_points))}
 
     # Iterate through the data
-    for data_num, data_row in df.iterrows():
+    for data_num, data_row in data.iterrows():
 
         # Obtain the index of the data and it's features
         data_index = data_row[0]
@@ -65,10 +65,10 @@ def Euclidean_Distance(train_features, test_features):
     return math.sqrt(sum((x - y) ** 2 for x, y in zip(train_features, test_features)))
 
 # Means(): Find the means of all the features in every cluster
-def Means(df, clusters):
+def Means(data, clusters):
 
     # Extract the column names
-    columns = df.columns
+    columns = data.columns
 
     # Initialize the empty means dataframe
     means = pd.DataFrame(columns=columns)
@@ -80,13 +80,13 @@ def Means(df, clusters):
         means['id'] = key
 
         # Initialize feature dictionary
-        feature_dict = {col: 0 for col in df.columns}
+        feature_dict = {col: 0 for col in data.columns}
 
         # Iterate through every index in the value
         for index in value:
 
             # Extract the features
-            row = df.loc[df['id'] == index]
+            row = data.loc[data['id'] == index]
 
             # Iterate through the features
             for feature in row:
@@ -94,7 +94,7 @@ def Means(df, clusters):
                 # Check if the feature is valid
                 # If so increment the feature in the dictionary
                 if feature != 'id' and feature != 'diagnosis':
-                    feature_dict[feature] += df.loc[df['id'] == index, feature].iloc[0]
+                    feature_dict[feature] += data.loc[data['id'] == index, feature].iloc[0]
 
         # Convert the feature dictionary into values
         vals = list(feature_dict.values())
@@ -111,13 +111,13 @@ def Means(df, clusters):
     # Return means
     return means
 
-def Heatmap_Raw(df, k):
+def Heatmap_Raw(data, k):
 
     # Drop the id and diagnosis columns before obtaining the correlation matrix
-    cleaned_df = df.drop(['id', 'diagnosis'], axis=1, errors='ignore')
+    cleaned_data = data.drop(['id', 'diagnosis'], axis=1, errors='ignore')
 
     # Obtain the correlation matrix of the raw data
-    corr_mat = np.corrcoef(cleaned_df, rowvar = True)
+    corr_mat = np.corrcoef(cleaned_data, rowvar = True)
 
     # Plot the heatmap of the raw data
     plt.figure(figsize=(8, 8))
@@ -127,13 +127,13 @@ def Heatmap_Raw(df, k):
     plt.savefig("Results/Heatmap_Raw_Data_" + str(k) + "_.png")
     plt.close()
 
-def Heatmap_Expression(df, actual_df, clusters, k):
+def Heatmap_Expression(data, actual_data, clusters, k):
 
-    # Assuming df is your DataFrame and clusters is a dictionary with each cluster's IDs as lists
-    columns = df.columns
+    # Assuming data is your DataFrame and clusters is a dictionary with each cluster's IDs as lists
+    columns = data.columns
 
     # Create an empty DataFrame for cluster values
-    cluster_df = pd.DataFrame(columns=columns)
+    cluster_data = pd.DataFrame(columns=columns)
 
     # Define Index
     i = 1
@@ -142,49 +142,46 @@ def Heatmap_Expression(df, actual_df, clusters, k):
     for key, value in clusters.items():
 
         # Extract rows where 'id' is in the list of values for this cluster
-        rows = df[df['id'].isin(value)]
+        rows = data[data['id'].isin(value)]
 
         # Extract actual rows where 'id' is in the list of values for this cluster
-        actual_rows = actual_df[actual_df['id'].isin(value)]
+        actual_rows = actual_data[actual_data['id'].isin(value)]
 
-        # Check if k is equal to the number of breast cancer subtypes
-        if k == 4:
+        # Find the following metrics
+        means = actual_rows.mean()
+        medians = actual_rows.median()
+        std_devs = actual_rows.std()
 
-            # Find the following metrics
-            means = actual_rows.mean()
-            medians = actual_rows.median()
-            std_devs = actual_rows.std()
+        # Print the mean
+        print("Means for Cluster {} is:\n{}".format(i, means))
 
-            # Print the mean
-            print("Means for Cluster {} is:\n{}".format(i, means))
+        # Give a line of space
+        print()
 
-            # Give a line of space
-            print()
+        # Print the median
+        print("Medians for Cluster {} is:\n{}".format(i, medians))
 
-            # Print the median
-            print("Medians for Cluster {} is:\n{}".format(i, medians))
+        # Give a line of space
+        print()
 
-            # Give a line of space
-            print()
+        # Print the standard deviation
+        print("Standard Deviations for Cluster {} is:\n{}".format(i, std_devs))
 
-            # Print the standard deviation
-            print("Standard Deviations for Cluster {} is:\n{}".format(i, std_devs))
-
-            # Give two lines of space
-            print()
-            print()
+        # Give two lines of space
+        print()
+        print()
 
         # Add the rows to the clusters dataFrame
-        cluster_df = pd.concat([cluster_df, rows], ignore_index=True)
+        cluster_data = pd.concat([cluster_data, rows], ignore_index=True)
 
         # Increment the Index
         i += 1
 
     # Drop the id and diagnosis columns before obtaining the correlation matrix
-    cleaned_df = cluster_df.drop(['id', 'diagnosis'], axis=1, errors='ignore')
+    cleaned_data = cluster_data.drop(['id', 'diagnosis'], axis=1, errors='ignore')
 
     # Obtain the correlation matrix of the raw data
-    corr_mat = np.corrcoef(cleaned_df, rowvar = True)
+    corr_mat = np.corrcoef(cleaned_data, rowvar = True)
 
     # Plot the heatmap of the clustered data
     plt.figure(figsize=(8, 8))
@@ -197,43 +194,64 @@ def Heatmap_Expression(df, actual_df, clusters, k):
 # Main()
 def main():
 
+    # print(data)
+    #
+    # data = data[data["diagnosis"] != 0]
+
     # Obtain the actual dataset from the file
-    actual_df = pd.read_csv('data.csv')
+    actual_data = pd.read_csv('data.csv')
 
     # Drop the last row as it is meaningless
-    actual_df.drop(actual_df.columns[-1], axis=1, inplace=True)
+    actual_data.drop(actual_data.columns[-1], axis=1, inplace=True)
+
+    actual_data = actual_data[actual_data["diagnosis"] != 'B']
 
     # Perform one-hot encoding for the diagnosis categorical feature (B = 0, M = 1)
-    actual_df["diagnosis"] = actual_df["diagnosis"].replace('B', 0)
-    actual_df["diagnosis"] = actual_df["diagnosis"].replace('M', 1)
+    # actual_data["diagnosis"] = actual_data["diagnosis"].replace('B', 0)
+    actual_data["diagnosis"] = actual_data["diagnosis"].replace('M', 1)
 
-    # Iterate through k-values
-    for k in range(2, 11):
+    # Read the data from the csv file
+    data = pd.read_csv('data.csv')
 
-        # Call Initialization to obtain the random points
-        random_points = Initialization(df, k)
+    # Drop the last row as it is meaningless
+    data.drop(data.columns[-1], axis=1, inplace=True)
 
-        # Call Clustering() to obtain the new clusters
-        clusters = Clustering(df, random_points)
+    data = data[data["diagnosis"] != 'B']
 
-        # Plot the heatmap of the raw data
-        Heatmap_Raw(df, k)
+    # Perform one-hot encoding for the diagnosis categorical feature (B = 0, M = 1)
+    data["diagnosis"] = data["diagnosis"].replace('M', 1)
 
-        # Implement an infinite loop
-        while(True):
-            # Call Means() to obtain the means
-            means = Means(df, clusters)
-            # Call Clustering() to obtain the clusters
-            new_clusters = Clustering(df, means)
-            # Check if clusters equal the new clusters
-            if clusters == new_clusters:
-                break
-            # Otherwise copy the new clusters into clusters
-            else:
-                clusters = copy.deepcopy(new_clusters)
+    # Normalize the dataframe
+    data = Normalization(data)
 
-        # Plot the heatmap of the expression data
-        Heatmap_Expression(df, actual_df, clusters, k)
+    print(data)
+
+    k = 4
+
+    # Call Initialization to obtain the random points
+    random_points = Initialization(data, k)
+
+    # Call Clustering() to obtain the new clusters
+    clusters = Clustering(data, random_points)
+
+    # Plot the heatmap of the raw data
+    Heatmap_Raw(data, k)
+
+    # Implement an infinite loop
+    while(True):
+        # Call Means() to obtain the means
+        means = Means(data, clusters)
+        # Call Clustering() to obtain the clusters
+        new_clusters = Clustering(data, means)
+        # Check if clusters equal the new clusters
+        if clusters == new_clusters:
+            break
+        # Otherwise copy the new clusters into clusters
+        else:
+            clusters = copy.deepcopy(new_clusters)
+
+    # Plot the heatmap of the expression data
+    Heatmap_Expression(data, actual_data, clusters, k)
 
 if __name__ == "__main__":
     main()
