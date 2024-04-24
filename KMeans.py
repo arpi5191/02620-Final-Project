@@ -194,41 +194,31 @@ def Heatmap_Expression(data, actual_data, clusters, k):
 # Main()
 def main():
 
-    # print(data)
-    #
-    # data = data[data["diagnosis"] != 0]
-
     # Obtain the actual dataset from the file
     actual_data = pd.read_csv('data.csv')
 
-    # Drop the last row as it is meaningless
-    actual_data.drop(actual_data.columns[-1], axis=1, inplace=True)
-
-    actual_data = actual_data[actual_data["diagnosis"] != 'B']
-
+    # Drop the patients that have benign tumors as they do not have breast cancer
     # Perform one-hot encoding for the diagnosis categorical feature (B = 0, M = 1)
-    # actual_data["diagnosis"] = actual_data["diagnosis"].replace('B', 0)
+    actual_data.drop(actual_data.columns[-1], axis=1, inplace=True)
+    actual_data = actual_data[actual_data["diagnosis"] != 'B']
     actual_data["diagnosis"] = actual_data["diagnosis"].replace('M', 1)
 
     # Read the data from the csv file
     data = pd.read_csv('data.csv')
 
-    # Drop the last row as it is meaningless
-    data.drop(data.columns[-1], axis=1, inplace=True)
-
-    data = data[data["diagnosis"] != 'B']
-
+    # Drop the patients that have benign tumors as they do not have breast cancer
     # Perform one-hot encoding for the diagnosis categorical feature (B = 0, M = 1)
+    data.drop(data.columns[-1], axis=1, inplace=True)
+    data = data[data["diagnosis"] != 'B']
     data["diagnosis"] = data["diagnosis"].replace('M', 1)
 
     # Normalize the dataframe
     data = Normalization(data)
 
-    print(data)
-
+    # Set k = 4 as there are 4 breast cancer subtypes
     k = 4
 
-    # Call Initialization to obtain the random points
+    # Call Initialization() to obtain the random points
     random_points = Initialization(data, k)
 
     # Call Clustering() to obtain the new clusters
