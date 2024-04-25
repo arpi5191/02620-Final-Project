@@ -150,22 +150,24 @@ def Heatmap_Expression(data, actual_data, clusters, k):
         # Find the following metrics
         means = actual_rows.mean()
         medians = actual_rows.median()
-        std_devs = actual_rows.std()
+        std_devs = rows.std()
 
-        # Print the mean
-        print("Means for Cluster {} is:\n{}".format(i, means))
-
-        # Give a line of space
-        print()
+        # print("Means for Cluster {} is:\n{}".format(i, sorted_means.head(11)))
+        # print()
+        # print("Means for Cluster {} is:\n{}".format(i, sorted_means.tail(11)))
 
         # Print the median
-        print("Medians for Cluster {} is:\n{}".format(i, medians))
+        # print("Medians for Cluster {} is:\n{}".format(i, medians))
 
         # Give a line of space
-        print()
+        # print()
 
-        # Print the standard deviation
-        print("Standard Deviations for Cluster {} is:\n{}".format(i, std_devs))
+        # Sort the standard deviations
+        sorted_std_devs = std_devs.sort_values(ascending=False)
+        #
+        # # Print the highest standard deviations
+        print("Standard Deviations for Cluster {} is:\n{}".format(i, sorted_std_devs.head(11)))
+        # print(sorted_std_devs.tail(11))
 
         # Give two lines of space
         print()
