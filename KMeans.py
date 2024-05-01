@@ -18,6 +18,9 @@ def Initialization(data, k):
 # Clustering(): Clusters the patients into multiple subtypes utilizing the means of the centroids
 def Clustering(data, random_points):
 
+    # Initialize the objective value
+    obj = 0
+
     # Initialize a dictionary of clusters
     clusters = {i: [] for i in range(len(random_points))}
 
@@ -57,8 +60,11 @@ def Clustering(data, random_points):
         # Add data index in the clusters
         clusters[min_cluster_index].append(data_index)
 
+        # Increment the objective value
+        obj += (min_dist * min_dist)
+
     # Return clusters
-    return clusters
+    return clusters, obj
 
 # Euclidean_Distance(): Finds the euclidean distance between the training and testing features
 def Euclidean_Distance(train_features, test_features):
@@ -110,6 +116,33 @@ def Means(data, clusters):
 
     # Return means
     return means
+
+def Unnormalize(means, actual_data):
+
+    unnormalized_means = means.copy()
+
+    for feature in means.columns:
+
+        if feature != "id" and feature != "diagnosis":
+
+            unnormalized_means[feature] = (means[feature] * actual_data.std()[feature]) + actual_data.mean()[feature]
+
+    pd.set_option('display.max_columns', None)
+
+    print(unnormalized_means)
+
+def Plot(obj_vals):
+
+    # Plotting the objective values
+    plt.plot(obj_vals)
+
+    # Adding labels and title
+    plt.xlabel('Iterations')
+    plt.ylabel('Objective Value')
+    plt.title('Objective Value Plot')
+
+    # Save the plot
+    plt.savefig('Results/Objective_Value_Plot.png')
 
 def Heatmap_Raw(data, k):
 
@@ -202,7 +235,8 @@ def main():
     # Drop the patients that have benign tumors as they do not have breast cancer
     # Perform one-hot encoding for the diagnosis categorical feature (B = 0, M = 1)
     actual_data.drop(actual_data.columns[-1], axis=1, inplace=True)
-    actual_data = actual_data[actual_data["diagnosis"] != 'B']
+    # actual_data = actual_data[actual_data["diagnosis"] != 'B']
+    actual_data["diagnosis"] = actual_data["diagnosis"].replace('B', 0)
     actual_data["diagnosis"] = actual_data["diagnosis"].replace('M', 1)
 
     # Read the data from the csv file
@@ -211,20 +245,29 @@ def main():
     # Drop the patients that have benign tumors as they do not have breast cancer
     # Perform one-hot encoding for the diagnosis categorical feature (B = 0, M = 1)
     data.drop(data.columns[-1], axis=1, inplace=True)
-    data = data[data["diagnosis"] != 'B']
+    # data = data[data["diagnosis"] != 'B']
+    data["diagnosis"] = data["diagnosis"].replace('B', 0)
     data["diagnosis"] = data["diagnosis"].replace('M', 1)
 
     # Normalize the dataframe
     data = Normalization(data)
 
     # Set k = 4 as there are 4 breast cancer subtypes
-    k = 4
+    k = 3
 
     # Call Initialization() to obtain the random points
     random_points = Initialization(data, k)
 
+    # Initialize a list for the objective values
+    obj_vals = []
+
     # Call Clustering() to obtain the new clusters
-    clusters = Clustering(data, random_points)
+    clusters, obj = Clustering(data, random_points)
+    #
+    # # Add the obj val in the list
+    # obj_vals.append(obj)
+
+    old_obj = 0
 
     # Plot the heatmap of the raw data
     Heatmap_Raw(data, k)
@@ -234,16 +277,31 @@ def main():
         # Call Means() to obtain the means
         means = Means(data, clusters)
         # Call Clustering() to obtain the clusters
-        new_clusters = Clustering(data, means)
+        clusters, obj = Clustering(data, means)
+        # Add the objective value in the list
+        obj_vals.append(obj)
         # Check if clusters equal the new clusters
-        if clusters == new_clusters:
+        if obj == old_obj:
             break
         # Otherwise copy the new clusters into clusters
         else:
-            clusters = copy.deepcopy(new_clusters)
+            old_obj = obj
+            final_clusters = copy.deepcopy(clusters)
 
     # Plot the heatmap of the expression data
-    Heatmap_Expression(data, actual_data, clusters, k)
+    Heatmap_Expression(data, actual_data, final_clusters, k)
+
+    # Plot the objective values
+    Plot(obj_vals)
+
+    # Give a line of space
+    print()
+
+    # Print the mean centers
+    print(means)
+
+    Unnormalize(means, actual_data)
 
 if __name__ == "__main__":
     main()
+
