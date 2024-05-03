@@ -14,9 +14,9 @@ Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Da
   2) `data_preprocessing.py`: Splits the data into training and testing sets. Normalizes and scales each feature.
   3) `PCA.py`: Performs Principal Component Analysis on the dataset using 7 principal components. The implementation is done entirely from scratch.
   4) `logistic_regression.py`: Implements Logistic Regression on the dataset before and after performing Principal Component Analysis. The implementation is done entirely from scratch
-  5) `KNN.py`: Implements K-Nearest Neighbors on the dataset, both before and after performing Principal Component Analysis. The implementation is done entirely from scratch except for the scaler package that was utilized to preprocess the data in the PCA implementation only.
-  6) `SVM.py`: Implements Support Vector Machines on the dataset before and after performing Principal Component Analysis. The implementation utilizes packages.
-  7) `KMeans.py`: Executes KMeans clustering on the dataset. The implementation is done entirely from scratch.
+  5) `KNN.py`: Executes K-Nearest Neighbors on the dataset, both before and after performing Principal Component Analysis. The implementation is done entirely from scratch except for the scaler package that was utilized to preprocess the data in the PCA implementation only.
+  6) `SVM.py`: Executes Support Vector Machines on the dataset before and after performing Principal Component Analysis. The implementation utilizes packages.
+  7) `KMeans.py`: Performs KMeans clustering on the dataset. The implementation is done entirely from scratch.
 
 # Results Directory Descriptions:
   1) `Log_Reg`:
