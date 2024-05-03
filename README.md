@@ -18,7 +18,7 @@ Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Da
   6) `SVM.py`: Implements Support Vector Machines on the dataset before and after performing Principal Component Analysis. The implementation utilizes packages.
   7) `KMeans.py`: Executes KMeans clustering on the dataset. The implementation is done entirely from scratch.
 
-# Directory Descriptions:
+# Results Directory Descriptions:
   1) `Log_Reg`:
   2) `KNN`: confusion_matrix_KNN.png, confusion_matrix_KNN.png, KNN_Euclidean_Accuracies_PCA.png, KNN_Euclidean_Accuracies.png, KNN_Euclidean_Distance_Results.png, KNN_Manhattan_Accuracies_PCA.png, KNN_Manhattan_Accuracies.png, KNN_Manhattan_Distance_Results.png, KNN_Minkowski_Accuracies_PCA.png, KNN_Minkowski_Accuracies.png, KNN_Minkowski_Distance_Results.png
   3) `SVM`: confusion_matrix_SVM_Linear_PCA.png, confusion_matrix_SVM_Linear.png, SVM_Results.png
