@@ -48,5 +48,5 @@ Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Da
   1) `Heatmap_Raw_Data4_.png`: The heatmap of the raw dataset.
   2) `Heatmap_Clustered_Data4_.png`: The heatmap of the dataset clustered by KNN.
   3) `KMeans.png`: Contains a picture of the KMeans results that we added to our final report.
-  4) `Objective_Value_Plot.png`: Plots accuracy of the model when k-values between 1 to 5 are utilized.
+  4) `Objective_Value_Plot.png`: Plots the objective values of the model for every iteration the KMeans algorithm runs until convergence.
 
