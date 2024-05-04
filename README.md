@@ -5,18 +5,18 @@ Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Da
 # Instructions:
   1) Navigate to the `02620-Final-Project` directory in the terminal.
   2) Type `python3 logistic_regression.py` in the terminal to implement logistic regression on the dataset, both before and after Principal Component Analysis.
-  3) Type `python3 KNN.py` in the terminal to implement K-Nearest Neighbors on the dataset, both before and after Principal Component Analysis.
-  4) Type `python3 SVM.py` in the terminal to implement Support Vector Machines on the dataset, both before and after Principal Component Analysis.
-  5) Type `python3 KMeans.py` in the terminal to perform KMeans clustering on the dataset.
+  3) Type `python3 knn.py` in the terminal to implement K-Nearest Neighbors on the dataset, both before and after Principal Component Analysis.
+  4) Type `python3 svm.py` in the terminal to implement Support Vector Machines on the dataset, both before and after Principal Component Analysis.
+  5) Type `python3 kmeans.py` in the terminal to perform KMeans clustering on the dataset.
 
 # File Descriptions:
   1) `data.csv`: Contains the Breast Cancer Wisconsin Dataset.
   2) `data_preprocessing.py`: Splits the data into training and testing sets. Normalizes and scales each feature.
   3) `PCA.py`: Performs Principal Component Analysis on the dataset using 7 principal components. The implementation is done entirely from scratch.
   4) `logistic_regression.py`: Executes Logistic Regression on the dataset before and after performing Principal Component Analysis. The implementation is done entirely from scratch
-  5) `KNN.py`: Executes K-Nearest Neighbors on the dataset, both before and after performing Principal Component Analysis. The implementation is done entirely from scratch except for the scaler package that was utilized to preprocess the data in the PCA implementation only.
-  6) `SVM.py`: Executes Support Vector Machines on the dataset before and after performing Principal Component Analysis. The implementation utilizes packages.
-  7) `KMeans.py`: Performs KMeans clustering on the dataset. The implementation is done entirely from scratch.
+  5) `knn.py`: Executes K-Nearest Neighbors on the dataset, both before and after performing Principal Component Analysis. The implementation is done entirely from scratch except for the scaler package that was utilized to preprocess the data in the PCA implementation only.
+  6) `svm.py`: Executes Support Vector Machines on the dataset before and after performing Principal Component Analysis. The implementation utilizes packages.
+  7) `kmeans.py`: Performs KMeans clustering on the dataset. The implementation is done entirely from scratch.
 
 # Results Directory Descriptions:
   1) `Log_Reg`:
