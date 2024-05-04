@@ -17,9 +17,12 @@ Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Da
   5) `knn.py`: Executes K-Nearest Neighbors on the dataset, both before and after performing Principal Component Analysis. The implementation is done entirely from scratch except for the scaler package that was utilized to preprocess the data in the PCA implementation only.
   6) `svm.py`: Executes Support Vector Machines on the dataset before and after performing Principal Component Analysis. The implementation utilizes packages.
   7) `kmeans.py`: Performs KMeans clustering on the dataset. The implementation is done entirely from scratch.
+  8) `calculate_metrics.py`: Calculates the accuracy, precision, recall, and F1-score of the models.
+  9) `generate_graphs.py`: Generates the graphs for Logistic Regression and Support Vector Machines.
+
 
 # Results Directory Descriptions:
-  1) `Log_Reg`:
+  1) `LogReg`:
   2) `KNN`: confusion_matrix_KNN.png, confusion_matrix_KNN.png, KNN_Euclidean_Accuracies_PCA.png, KNN_Euclidean_Accuracies.png, KNN_Euclidean_Distance_Results.png, KNN_Manhattan_Accuracies_PCA.png, KNN_Manhattan_Accuracies.png, KNN_Manhattan_Distance_Results.png, KNN_Minkowski_Accuracies_PCA.png, KNN_Minkowski_Accuracies.png, KNN_Minkowski_Distance_Results.png
   3) `SVM`: confusion_matrix_SVM_Linear_PCA.png, confusion_matrix_SVM_Linear.png, SVM_Results.png
   4) `KMeans`: Heatmap_Raw_Data_4_.png, Heatmap_Clustered_Data4_.png, Objective_Value_Plot.png, KMeans_Results.png
