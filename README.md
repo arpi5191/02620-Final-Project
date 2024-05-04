@@ -22,12 +22,17 @@ Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Da
 
 
 # Results Directory Descriptions:
-  1) `LogReg`:
+  1) `LogReg`: Logistic Regression No PC Transform.png, Logistic Regression PC Transformed.png, SVM no PC Transform.png, SVM PC Transformed.png
   2) `KNN`: confusion_matrix_KNN.png, confusion_matrix_KNN.png, KNN_Euclidean_Accuracies_PCA.png, KNN_Euclidean_Accuracies.png, KNN_Euclidean_Distance_Results.png, KNN_Manhattan_Accuracies_PCA.png, KNN_Manhattan_Accuracies.png, KNN_Manhattan_Distance_Results.png, KNN_Minkowski_Accuracies_PCA.png, KNN_Minkowski_Accuracies.png, KNN_Minkowski_Distance_Results.png
   3) `SVM`: confusion_matrix_SVM_Linear_PCA.png, confusion_matrix_SVM_Linear.png, SVM_Results.png
   4) `KMeans`: Heatmap_Raw_Data_4_.png, Heatmap_Clustered_Data4_.png, Objective_Value_Plot.png, KMeans_Results.png
 
 # Logistic Regression Results Descriptions:
+  1) `Logistic Regression No PC Transform.png`: Graph of the Logistic Regression when it is executed without PCA.
+  2) `Logistic Regression PC Transformed.png`: Graph of the Logistic Regression when it is executed with PCA.
+  3) `SVM No PC Transform.png`: Graph of the SVM when it is executed without PCA.
+  4) `SVM PC Transformed.png`: Graph of the SVM when it is executed with PCA.
+
 
 # KNN Results Descriptions:
   1) `confusion_matrix_KNN_PCA.png`: The confusion matrix of the KNN implementation with PCA.
