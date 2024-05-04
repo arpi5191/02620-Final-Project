@@ -81,7 +81,7 @@ def draw_scatter_plot(set_M, set_B, n_true_p, n_true_n, n_false_p, n_false_n, se
     plt.ylabel("Second PC")
 
     plt.savefig("Results/" + "LogReg/" + title + ".png")
-    plt.show()
+    # plt.show()
     plt.close()
 
 
