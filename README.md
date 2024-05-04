@@ -5,9 +5,11 @@ Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Da
 # Instructions:
   1) Navigate to the `02620-Final-Project` directory in the terminal.
   2) Type `python3 logistic_regression.py` in the terminal to implement logistic regression on the dataset, both before and after Principal Component Analysis.
-  3) Type `python3 knn.py` in the terminal to implement K-Nearest Neighbors on the dataset, both before and after Principal Component Analysis.
-  4) Type `python3 svm.py` in the terminal to implement Support Vector Machines on the dataset, both before and after Principal Component Analysis.
-  5) Type `python3 kmeans.py` in the terminal to perform KMeans clustering on the dataset.
+  3) Type `python3 svm.py` in the terminal to implement Support Vector Machines on the dataset, both before and after Principal Component Analysis.
+  4) Type `python3 calculate_metrics.py` in the terminal to obtain the metrics for Logistic Regression and SVM.
+  5) Type `python3 generate_graphs.py` in the terminal to generate the scatterplots for the Logistic Regression and SVM.
+  6) Type `python3 knn.py` in the terminal to implement K-Nearest Neighbors on the dataset, both before and after Principal Component Analysis.
+  7) Type `python3 kmeans.py` in the terminal to perform KMeans clustering on the dataset.
 
 # File Descriptions:
   1) `data.csv`: Contains the Breast Cancer Wisconsin Dataset.
