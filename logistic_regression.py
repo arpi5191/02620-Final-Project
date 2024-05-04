@@ -7,7 +7,15 @@ training_data = trainD.to_numpy()
 testing_data = testD.to_numpy()
 
 
-def process_array(input_array: np.array) -> (np.array, np.array):
+def process_array(input_array: np.array) -> (np.array, np.array, np.array):
+    # This function split the given training and testing sets into feature values and labels.
+    # Inputs:
+    # input_array: a numpy array containing sample id, feature values, and labels for all samples.
+    # Outputs:
+    # X:           a numpy array containing all the feature values for each sample.
+    # Y:           a numpy array containing all the true labels.
+    # id:          a numpy array containing the sample ids.
+
     n_rows, n_cols = input_array.shape
     # rows = n_samples, cols = n_features
 
@@ -31,6 +39,12 @@ testing_X, testing_Y, testing_id = process_array(testing_data)
 # since there are only 2 class labels, we only need to find P(Y=1)
 # P(Y=0) = 1 - P(Y=1) here, also P(Y=1) used in learning variables
 def find_P_Y1(X: np.array, W: np.array) -> np.array:
+    # This function gives the logistic regression results based of given data (feature values) and parameters.
+    # Inputs:
+    # X:     a numpy array of float that containing all input feature values with last column of ones added.
+    # W:     a numpy array containing the parameters for logistic regression.
+    # Outputs:
+    # p_y_1: a numpy array of logistic regression results, giving probability of each sample labeled as 1.
     if X.shape[1] != W.shape[0]:
         print('error in X or W shape')
         return 0
@@ -42,13 +56,26 @@ def find_P_Y1(X: np.array, W: np.array) -> np.array:
     return p_y1
 
 
-testX = np.array([[1, 2], [3, 4]])
+'''testX = np.array([[1, 2], [3, 4]])
 testW = np.array([5, 6])
-print(find_P_Y1(testX, testW).shape)
+print(find_P_Y1(testX, testW).shape)'''
 
 
 def learn_W_MLE(X: np.array, Y: np.array, W_prior: np.array, step_size: float,
                 iteration=100, threshold=0.01, interval=100, descent_rate=0.9) -> np.array:
+    # This function learns the parameters for logistic regression based on given input data and true labels.
+    # Inputs:
+    # X:            a numpy array of float that containing all input feature values with last column of ones added.
+    # Y:            a numpy array of true labels of the training data (0 and 1 for benign and malignant).
+    # step_size:    a float value to set how quickly the parameters were updated by the gradients.
+    # iteration:    an integer that gives the maximum number of times the parameters were updated.
+    # threshold:    a float value of which if the sums of gradient fells below, the model is believed to have stopped
+    #                training and will exit and return the parameters.
+    # interval:     an integer set the number of iterations before changing the step size to refine parameters.
+    # descent_rate: a float to reduce the step size after interval number of iterations.
+    # Outputs:
+    # W:            a numpy array containing the parameters for logistic regression after training on given data.
+
     if X.shape[0] != Y.shape[0]:
         print('error in X or Y shape')
         return 0
@@ -89,6 +116,12 @@ print(find_P_Y1(testX, learnedW))
 
 
 def turn_p_to_y(predicted_results: np.array) -> np.array:
+    # This function transformed the probabilities results from the logistic regression into
+    # prediction results of 1 (malignant) and o (benign) with cutoff value of 0.5.
+    # Inputs:
+    # predicted_results: a numpy array containing the predicted probabilities from the logistic regression.
+    # Outputs:
+    # Y:                 a numpy array containing 0 and 1 for benign and malignant prediction results.
     Y = predicted_results
     size = Y.shape[0]
     for a in range(size):
@@ -100,6 +133,18 @@ def turn_p_to_y(predicted_results: np.array) -> np.array:
 
 
 def find_matrix(true_label: np.array, predicted_label: np.array):
+    # This function compares the true labels and predicted labels to find true / false positive / negative.
+    # Inputs:
+    # true_label:          a numpy array containing numbers 0 (benign) and 1 (malignant) for true labels.
+    # predicted_label:     a numpy array containing numbers 0 (benign) and 1 (malignant) predicted by the model.
+    # Outputs:
+    # true_positive:       an integer giving the number of true positives.
+    # true_negative:       an integer giving the number of true negatives.
+    # false_positive:      an integer giving the number of false positives.
+    # false_negative:      an integer giving the number of false negatives.
+    # false_positive_list: a list containing indices of false positive predictions.
+    # false_negative_list: a list containing indices of false negative predictions.
+
     if true_label.shape != predicted_label.shape:
         print('error in input shapes')
         return 0
@@ -123,7 +168,12 @@ def find_matrix(true_label: np.array, predicted_label: np.array):
 
 
 def add_last_col(input_array: np.array) -> np.array:
-    n_rows, n_cols = input_array.shape
+    # This function add a column of ones to the end of the input matrix.
+    # It makes adding the scalar term easier (expand the parameter vector by 1 for w_0).
+    # Input:
+    # input_array:  a numpy array matrix of all training data.
+    # output_array: a numpy array matrix of the same data with a last column of ones added.
+
     last_col = np.ones(input_array.shape[0])
     output_array = np.column_stack((input_array, last_col.T))
     return output_array
