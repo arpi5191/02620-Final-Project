@@ -7,7 +7,7 @@ from PCA import find_PCs, PCA_transform
 from data_processing import df, Scaling, SplitData
 from sklearn.metrics import precision_recall_curve
 from sklearn.model_selection import cross_val_score
-from KNN import Accuracy, Precision, Recall, F1Score
+from knn import Accuracy, Precision, Recall, F1Score
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay
 
 # DataSplitting(): Splits the dataset into training and testing
