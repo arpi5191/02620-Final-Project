@@ -7,7 +7,7 @@ from sklearn.preprocessing import StandardScaler
 def SplitData(data, train_size):
 
     # Shuffle the data
-    shuffled_data = data.sample(frac=1).reset_index(drop=True)
+    shuffled_data = data.sample(frac=1, random_state=3).reset_index(drop=True)
 
     # Find the index up until which the training data will be extracted
     trainInd = int(len(shuffled_data) * train_size)
