@@ -1,4 +1,4 @@
-# 02620-Final-Project
+# Breast Cancer Diagnosis and Classification
 
 Performs cancer tumor and stage classification on the Breast Cancer Wisconsin Dataset.
 
